@@ -6,5 +6,4 @@ Following along with the online course on [LetsBuildThatApp](https://www.letsbui
 # Additional features
 * Using [SwiftyBeaver Logging](https://github.com/SwiftyBeaver/SwiftyBeaver)
 * Can switch the front and back camera with animation
-* Compatiable with iPhone X
-
+* Compatible with iPhone X
