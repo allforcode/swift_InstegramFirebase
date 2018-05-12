@@ -86,7 +86,8 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
                 guard var postDic = value as? [String : Any] else { return }
                
                 postDic["user"] = user
-                let post = Post(dictionary: postDic)
+                var post = Post(dictionary: postDic)
+                post.id = key
                 self.posts.append(post)
             })
             

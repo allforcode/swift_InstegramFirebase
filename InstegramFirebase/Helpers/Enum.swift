@@ -15,6 +15,7 @@ enum DBChild: String {
     case username
     case profileImageUrl
     case followers
+    case comments
 }
 
 enum FollowRelation{

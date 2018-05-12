@@ -9,6 +9,7 @@
 import UIKit
 
 struct Post {
+    var id: String?
     var imageUrl: String?
     var text: String?
     var imageHeight: CGFloat?
