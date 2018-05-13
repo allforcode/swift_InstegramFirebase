@@ -19,6 +19,9 @@
 		DA6EF34B2096A4B200DF7495 /* CommentController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6EF34A2096A4B200DF7495 /* CommentController.swift */; };
 		DA77664920783F7E00F89891 /* UserSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA77664820783F7E00F89891 /* UserSearchController.swift */; };
 		DA77664B207857E000F89891 /* UserSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA77664A207857E000F89891 /* UserSearchCell.swift */; };
+		DA776AEF20A7AAB80003B5B4 /* CustomInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA776AEE20A7AAB80003B5B4 /* CustomInputContainerView.swift */; };
+		DA776AF120A7AB390003B5B4 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA776AF020A7AB390003B5B4 /* CommentCell.swift */; };
+		DA776AF320A7B18C0003B5B4 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA776AF220A7B18C0003B5B4 /* Comment.swift */; };
 		DA7F6C3F208AC03B0082DFE9 /* CameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7F6C3E208AC03B0082DFE9 /* CameraController.swift */; };
 		DA7F6C41208C0BAC0082DFE9 /* PreviewPhotoContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7F6C40208C0BAC0082DFE9 /* PreviewPhotoContainerView.swift */; };
 		DA8303E0202542ED001FBFB8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8303DF202542ED001FBFB8 /* AppDelegate.swift */; };
@@ -61,6 +64,9 @@
 		DA6EF34A2096A4B200DF7495 /* CommentController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentController.swift; sourceTree = "<group>"; };
 		DA77664820783F7E00F89891 /* UserSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSearchController.swift; sourceTree = "<group>"; };
 		DA77664A207857E000F89891 /* UserSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSearchCell.swift; sourceTree = "<group>"; };
+		DA776AEE20A7AAB80003B5B4 /* CustomInputContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomInputContainerView.swift; sourceTree = "<group>"; };
+		DA776AF020A7AB390003B5B4 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
+		DA776AF220A7B18C0003B5B4 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		DA7F6C3E208AC03B0082DFE9 /* CameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraController.swift; sourceTree = "<group>"; };
 		DA7F6C40208C0BAC0082DFE9 /* PreviewPhotoContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPhotoContainerView.swift; sourceTree = "<group>"; };
 		DA8303DC202542ED001FBFB8 /* InstegramFirebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstegramFirebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,6 +135,8 @@
 				DAE6AC5C20703BB700142BE5 /* HomePostCell.swift */,
 				DA77664A207857E000F89891 /* UserSearchCell.swift */,
 				DA7F6C40208C0BAC0082DFE9 /* PreviewPhotoContainerView.swift */,
+				DA776AEE20A7AAB80003B5B4 /* CustomInputContainerView.swift */,
+				DA776AF020A7AB390003B5B4 /* CommentCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -138,6 +146,7 @@
 			children = (
 				DA0B8722202FB0CB0071F193 /* User.swift */,
 				DA9CABFA206D8A7C00B09672 /* Post.swift */,
+				DA776AF220A7B18C0003B5B4 /* Comment.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -378,8 +387,10 @@
 			files = (
 				DAA83C9A202FF36800A51995 /* StatLabel.swift in Sources */,
 				DA0B8720202F9A610071F193 /* UserProfileHeader.swift in Sources */,
+				DA776AEF20A7AAB80003B5B4 /* CustomInputContainerView.swift in Sources */,
 				DA8F4A6B2093D7BE00B4C40E /* AnimationDissmissor.swift in Sources */,
 				DA6EF34B2096A4B200DF7495 /* CommentController.swift in Sources */,
+				DA776AF320A7B18C0003B5B4 /* Comment.swift in Sources */,
 				DAE6AC5B2070394D00142BE5 /* HomeController.swift in Sources */,
 				DA8303F920267D31001FBFB8 /* Extension.swift in Sources */,
 				DA8303E8202542ED001FBFB8 /* InstegramFirebase.xcdatamodeld in Sources */,
@@ -389,6 +400,7 @@
 				DA0B871D202F97B60071F193 /* UserProfileController+delegates.swift in Sources */,
 				DA8303FD2026B638001FBFB8 /* Enum.swift in Sources */,
 				DA8303E2202542ED001FBFB8 /* SignUpController.swift in Sources */,
+				DA776AF120A7AB390003B5B4 /* CommentCell.swift in Sources */,
 				DAE6AC5820702AE500142BE5 /* CustomImageView.swift in Sources */,
 				DA0A68112026C54700663D5C /* SignUpController+delegates.swift in Sources */,
 				DAD84A02204B3555004564E9 /* PhotoSelectorController.swift in Sources */,

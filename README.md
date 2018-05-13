@@ -6,7 +6,7 @@ Following along with the online course on [LetsBuildThatApp](https://www.letsbui
 _You may need to get the config file of Firebase and save under `./InstegramFirebase`_
 
 # Additional features
-* Define the name of FirebaseDatabase's child in enums
+* Define the names of FirebaseDatabase's child in enums
 * Using [SwiftyBeaver Logging](https://github.com/SwiftyBeaver/SwiftyBeaver)
 * Can switch the front and back camera with animation
 * Compatible with iPhone X
