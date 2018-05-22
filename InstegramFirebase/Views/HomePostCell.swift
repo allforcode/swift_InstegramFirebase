@@ -16,6 +16,8 @@ class HomePostCell: UICollectionViewCell {
         didSet {
             guard let post = self.post else { return }
             
+            self.likeButton.setImage(post.hasLiked ? #imageLiteral(resourceName: "like_selected").withRenderingMode(.alwaysOriginal) : #imageLiteral(resourceName: "like_unselected").withRenderingMode(.alwaysOriginal), for: .normal)
+            
             if let imageUrl = post.imageUrl {
                 self.photoImageView.loadImage(urlString: imageUrl)
             }
@@ -64,9 +66,9 @@ class HomePostCell: UICollectionViewCell {
         return iv
     }()
     
-    let likeButton: UIButton = {
+    lazy var likeButton: UIButton = {
         let b = UIButton(type: .system)
-        b.setImage(#imageLiteral(resourceName: "like_unselected").withRenderingMode(.alwaysOriginal), for: .normal)
+        b.addTarget(self, action: #selector(handleLike), for: .touchUpInside)
         return b
     }()
     
@@ -91,7 +93,6 @@ class HomePostCell: UICollectionViewCell {
     
     let captionLabel: UILabel = {
         let l = UILabel()
-        
         l.numberOfLines = 0
         return l
     }()
@@ -111,8 +112,8 @@ class HomePostCell: UICollectionViewCell {
             
             attributedString.append(NSAttributedString(string: "\n\n", attributes: [NSAttributedStringKey.font : UIFont.systemFont(ofSize: 4)]))
             
-            if let creationgDate = post.creationDate {
-                let timeAgoDisplay = creationgDate.timeAgoDisplay()
+            if let creationDate = post.creationDate {
+                let timeAgoDisplay = creationDate.timeAgoDisplay()
                 attributedString.append(NSMutableAttributedString(string: timeAgoDisplay, attributes: [NSAttributedStringKey.font : UIFont.systemFont(ofSize: 12), NSAttributedStringKey.foregroundColor : UIColor.lightGray]))
             }
             
@@ -160,9 +161,12 @@ class HomePostCell: UICollectionViewCell {
         delegate?.didTapComment(post: post)
     }
     
+    @objc func handleLike(){
+        log.verbose("handle like in cell")
+        delegate?.didTapLike(cell: self)
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
 }

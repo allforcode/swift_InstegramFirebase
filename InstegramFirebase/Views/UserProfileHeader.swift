@@ -11,6 +11,8 @@ import Firebase
 
 class UserProfileHeader: UICollectionViewCell {
     
+    var delegate: UserProfileViewDelegate?
+    
     var user: User? {
         didSet {
             if let user = self.user {
@@ -53,16 +55,20 @@ class UserProfileHeader: UICollectionViewCell {
         return iv
     }()
     
-    let gridButton: UIButton = {
+    lazy var gridButton: UIButton = {
         let b = UIButton(type: .system)
         b.setImage(#imageLiteral(resourceName: "grid"), for: .normal)
+        b.tag = ButtonTag.grid.rawValue
+        b.addTarget(self, action: #selector(handleViewChange), for: .touchUpInside)
         return b
     }()
     
-    let listButton: UIButton = {
+    lazy var listButton: UIButton = {
         let b = UIButton(type: .system)
         b.setImage(#imageLiteral(resourceName: "list"), for: .normal)
         b.tintColor = UIColor(white: 0, alpha: 0.2)
+        b.tag = ButtonTag.list.rawValue
+        b.addTarget(self, action: #selector(handleViewChange), for: .touchUpInside)
         return b
     }()
     
@@ -118,6 +124,20 @@ class UserProfileHeader: UICollectionViewCell {
         default:
             print("do editing")
         }
+    }
+    
+    @objc func handleViewChange(_ sender: Any){
+        log.verbose("sender: ", context: sender)
+        guard let viewButton = sender as? UIButton else { return }
+        viewButton.tintColor = UIColor.darkerBlue
+        
+        if viewButton.tag == ButtonTag.grid.rawValue {
+            listButton.tintColor = UIColor.darkGray
+        }else if viewButton.tag == ButtonTag.list.rawValue {
+            gridButton.tintColor = UIColor.darkGray
+        }
+        
+        delegate?.didChangeView(viewButton.tag)
     }
     
     func handleFollow(toFollow: Bool) {

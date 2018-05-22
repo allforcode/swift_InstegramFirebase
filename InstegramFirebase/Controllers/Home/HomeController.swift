@@ -12,8 +12,8 @@ import Firebase
 class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLayout, HomePostCellDelegate {
     let homeCellId = "homeCellId"
     var posts = [Post]()
-    var numberOfFollowedUsers: Int = 0
-    var numberOfUserHasFetched: Int = 0
+    var hasReloaded: Bool = false
+    var fetchResult = [String : (String, Bool) ]()
     
     static let refreshNotificationName = Notification.Name(rawValue: "refreshHomePosts")
     
@@ -34,30 +34,32 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
     
     @objc func handleRefresh(){
         log.verbose("handleRefresh")
+        self.fetchResult.removeAll()
+        self.posts.removeAll()
+//        self.collectionView?.reloadData()
         fetchPosts()
     }
     
     private func fetchPosts(){
         log.debug("start to fetch posts")
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        self.posts.removeAll()
-        self.collectionView?.reloadData()
 
         Database.fetchUserWithUID(uid) { (user) in
             log.debug("fetch posts I made")
+            guard let username = user.username else { return }
+            self.fetchResult[uid] = (username, false)
             self.fetchPostsWithUser(user: user)
         }
         
         //fetch the users that the logined user has followed
         Database.database().reference().child(DBChild.followers.rawValue).child(uid).observe(.value, with: { (snapshot) in
-            
             if let followedUserDic = snapshot.value as? [String: Bool] {
-                self.numberOfFollowedUsers = followedUserDic.filter{ $0.value }.count
-                self.numberOfUserHasFetched = 0
                 followedUserDic.forEach({ (key, value) in
                     if value {
                         Database.fetchUserWithUID(key, completion: { (user) in
                             log.debug("fetch post for \(user.username ?? "")")
+                            guard let uid = user.uid, let username = user.username else { return }
+                            self.fetchResult[uid] = (username, false)
                             self.fetchPostsWithUser(user: user)
                         })
                     }
@@ -73,41 +75,68 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
     private func fetchPostsWithUser(user: User){
         log.debug("start fetching", context: user.username)
         guard let uid = user.uid else { return }
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        
         let postsRef = Database.database().reference().child(DBChild.posts.rawValue).child(uid)
-        if user.uid != Auth.auth().currentUser?.uid {
-            self.numberOfUserHasFetched += 1
-        }
-        log.warning("numberOfUserHasFetched:", context: self.numberOfUserHasFetched)
 
         postsRef.observeSingleEvent(of: .value, with: { ( snapshot ) in
-            guard let postsDic = snapshot.value as? [String: Any] else { return }
-            log.warning("Fetched posts of \(user.username ?? "nil")", context: postsDic.count)
+            guard let postsDic = snapshot.value as? [String: Any] else {
+                self.fetchResult[uid] = (user.username!, true)
+                return
+            }
+            
+            let numberOfPosts = postsDic.count
+            var numberOfPostsHasBeenRecieved = 0
+            
             postsDic.forEach({ ( key, value ) in
                 guard var postDic = value as? [String : Any] else { return }
-               
+                
                 postDic["user"] = user
                 var post = Post(dictionary: postDic)
                 post.id = key
-                self.posts.append(post)
+                
+                let likeRef = Database.database().reference().child(DBChild.likes.rawValue).child(key)
+                likeRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                    if let hasLikeDic = snapshot.value as? [String : Bool], hasLikeDic[currentUserId] == true {
+                        post.hasLiked = true
+                    } else {
+                        post.hasLiked = false
+                    }
+                    self.posts.append(post)
+                    numberOfPostsHasBeenRecieved += 1
+                    
+                    if ( numberOfPostsHasBeenRecieved >= numberOfPosts) {
+                        self.fetchResult[uid] = (user.username!, true)
+                    }
+                    
+                    let userHasNotBeenProcessed = self.fetchResult.filter({ ( r ) -> Bool in
+                        return r.value.1 == false
+                    })
+                    
+                    let numberOfUserHasNotBeenProcessed = userHasNotBeenProcessed.count
+
+                    if ( numberOfUserHasNotBeenProcessed <= 0) {
+                        DispatchQueue.main.async {
+                            log.warning("start reload data", context: self.posts.count)
+                            self.collectionView?.refreshControl?.endRefreshing()
+                            self.posts.sort(by: { (p1, p2) -> Bool in
+                                if let p1CreationDate = p1.creationDate, let p2CreationDate = p2.creationDate {
+                                    return p1CreationDate.compare(p2CreationDate) == .orderedDescending
+                                }
+                                return false
+                            })
+
+                            self.collectionView?.reloadData()
+                            self.hasReloaded = true
+                            if !self.posts.isEmpty {
+                                self.collectionView?.scrollToItem(at: IndexPath(item: 0, section: 0), at: UICollectionViewScrollPosition.top, animated: true)
+                            }
+                        }
+                    }
+                })
             })
             
-            if ( self.numberOfUserHasFetched == self.numberOfFollowedUsers) {
-                DispatchQueue.main.async {
-                    log.warning("start reload data")
-                    self.collectionView?.refreshControl?.endRefreshing()
-                    self.posts.sort(by: { (p1, p2) -> Bool in
-                        if let p1CreationDate = p1.creationDate, let p2CreationDate = p2.creationDate {
-                            return p1CreationDate.compare(p2CreationDate) == .orderedDescending
-                        }
-                        return false
-                    })
-
-                    self.collectionView?.reloadData()
-                    if !self.posts.isEmpty {
-                        self.collectionView?.scrollToItem(at: IndexPath(item: 0, section: 0), at: UICollectionViewScrollPosition.top, animated: true)
-                    }
-                }
-            }
+            
         }, withCancel: { ( error ) in
             log.error("Failed to fetch user's posts", context: error)
             return
@@ -158,5 +187,24 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
         commentController.post = post
         navigationController?.pushViewController(commentController, animated: true)
         hidesBottomBarWhenPushed = false
+    }
+    
+    func didTapLike(cell: HomePostCell) {
+        log.verbose("did tap like in controller")
+        guard let indexPath = collectionView?.indexPath(for: cell) else { return }
+        var post = self.posts[indexPath.item]
+        log.debug("tapped post", context: post)
+        guard let postId = post.id, let uid = Auth.auth().currentUser?.uid else { return }
+        let value = [uid : !post.hasLiked]
+        Database.database().reference().child(DBChild.likes.rawValue).child(postId).updateChildValues(value) { (error, ref) in
+            if let err = error {
+                log.error("Failed to like the post", context: err)
+                return
+            }
+            
+            post.hasLiked = !post.hasLiked
+            self.posts[indexPath.item] = post
+            self.collectionView?.reloadData()
+        }
     }
 }

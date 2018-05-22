@@ -10,4 +10,9 @@ import Foundation
 
 protocol HomePostCellDelegate {
     func didTapComment(post: Post)
+    func didTapLike(cell: HomePostCell)
+}
+
+protocol UserProfileViewDelegate {
+    func didChangeView(_ changeTo: Int)
 }

@@ -16,6 +16,7 @@ struct Post {
     var imageWidth: CGFloat?
     var creationDate: Date?
     var user: User?
+    var hasLiked: Bool = false
     
     init(dictionary: [String: Any]) {
         self.imageUrl =  dictionary["imageUrl"] as? String

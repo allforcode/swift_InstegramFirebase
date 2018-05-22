@@ -16,10 +16,16 @@ enum DBChild: String {
     case profileImageUrl
     case followers
     case comments
+    case likes
 }
 
 enum FollowRelation{
     case followed
     case unfollowed
     case isSelf
+}
+
+enum ButtonTag: Int {
+    case grid
+    case list
 }
