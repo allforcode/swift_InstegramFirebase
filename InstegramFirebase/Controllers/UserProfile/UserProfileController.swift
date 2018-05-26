@@ -16,11 +16,15 @@ class UserProfileController: UICollectionViewController, UserProfileViewDelegate
     let listCellId = "listCellId"
     var posts = [Post]()
     var isGridView = true
-
+    var lastFetchedPostId: String?
+    var isFinishFetching: Bool = false
+    
     var user: User? {
         didSet {
             log.warning("user has been set to", context: user?.username)
-            self.collectionView?.reloadData()
+            guard let user = self.user else { return }
+            fetchPaginatePosts(user: user)
+//            self.collectionView?.reloadData()
         }
     }
     
@@ -55,6 +59,15 @@ class UserProfileController: UICollectionViewController, UserProfileViewDelegate
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        if indexPath.item == 0 {
+            log.warning("post at cellForItemAt: ", context: self.posts[indexPath.item])
+        }
+
+        if let user = self.user, indexPath.item == self.posts.count - 1, !isFinishFetching {
+            log.warning("fetch paginate post", context: indexPath.item)
+            fetchPaginatePosts(user: user)
+        }
         
         if isGridView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: gridCellId, for: indexPath) as! UserProfilePhotoCell
@@ -104,8 +117,50 @@ class UserProfileController: UICollectionViewController, UserProfileViewDelegate
                 self.navigationItem.title = user.username
 //                self.collectionView?.reloadData()
             }
-            self.fetchOrderedPosts(user: user)
+//            self.fetchOrderedPosts(user: user)
         }
+    }
+    
+    private func fetchPaginatePosts(user: User) {
+        guard let uid = user.uid else { return }
+        let postRef = Database.database().reference().child(DBChild.posts.rawValue).child(uid)
+        var postQuery = postRef.queryOrderedByKey()
+        
+        if let lastPostId = self.lastFetchedPostId {
+            log.warning("last fetched post id is", context: lastPostId)
+            postQuery = postQuery.queryEnding(atValue: lastPostId)
+        }
+        
+        postQuery.queryLimited(toLast: 4).observeSingleEvent(of: .value, with: { (snapshot) in
+            guard let postsDic = snapshot.value as? [String : Any] else { return }
+            log.warning("count of posts:", context: postsDic.count)
+            
+            guard var allObjects = snapshot.children.allObjects as? [DataSnapshot] else { return }
+            
+            self.lastFetchedPostId = allObjects.removeFirst().key
+
+            if allObjects.count < 3 {
+                self.isFinishFetching = true
+            }
+            
+            allObjects.reversed().forEach({ ( postSnapshot ) in
+                guard var postDic = postSnapshot.value as? [String: Any] else { return }
+                postDic["user"] = self.user
+                var post = Post(dictionary: postDic)
+                post.id = postSnapshot.key
+                log.warning("post key", context: post.id)
+                self.posts.append(post)
+            })
+            
+//            DispatchQueue.main.async {
+                log.warning("reload")
+                self.collectionView?.reloadData()
+//            }
+        }) { ( error ) in
+            log.error("Failed to fetch posts", context: error)
+            return
+        }
+        
     }
     
     private func fetchOrderedPosts(user: User){
