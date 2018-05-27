@@ -16,7 +16,7 @@ class UserProfileController: UICollectionViewController, UserProfileViewDelegate
     let listCellId = "listCellId"
     var posts = [Post]()
     var isGridView = true
-    var lastFetchedPostId: String?
+    var lastFetchedPostCreationDate: TimeInterval?
     var isFinishFetching: Bool = false
     
     var user: User? {
@@ -115,31 +115,50 @@ class UserProfileController: UICollectionViewController, UserProfileViewDelegate
             self.user = user
             DispatchQueue.main.async {
                 self.navigationItem.title = user.username
-//                self.collectionView?.reloadData()
+                self.collectionView?.reloadData()
             }
 //            self.fetchOrderedPosts(user: user)
         }
     }
     
+    let PAGE_ITEMS_COUNT: Int = 3
+    
     private func fetchPaginatePosts(user: User) {
         guard let uid = user.uid else { return }
         let postRef = Database.database().reference().child(DBChild.posts.rawValue).child(uid)
-        var postQuery = postRef.queryOrderedByKey()
+        var postQuery = postRef.queryOrdered(byChild: "creationDate")
         
-        if let lastPostId = self.lastFetchedPostId {
-            log.warning("last fetched post id is", context: lastPostId)
-            postQuery = postQuery.queryEnding(atValue: lastPostId)
+//        if let lastPostId = self.lastFetchedPostId {
+//            log.warning("last fetched post id is", context: lastPostId)
+//            postQuery = postQuery.queryEnding(atValue: lastPostId)
+//        }
+
+        log.warning("self.posts", context: self.posts.count)
+        
+        if let lastCreationDate = self.lastFetchedPostCreationDate {
+//            let lastPostCreationDate = self.posts.last?.creationDate?.timeIntervalSince1970
+            log.warning("last post is:", context: self.lastFetchedPostCreationDate)
+            postQuery = postQuery.queryEnding(atValue: lastCreationDate)
         }
         
-        postQuery.queryLimited(toLast: 4).observeSingleEvent(of: .value, with: { (snapshot) in
+        postQuery.queryLimited(toLast: UInt(PAGE_ITEMS_COUNT + 1)).observeSingleEvent(of: .value, with: { (snapshot) in
             guard let postsDic = snapshot.value as? [String : Any] else { return }
-            log.warning("count of posts:", context: postsDic.count)
+            log.warning("count of dictionary of posts:", context: postsDic.count)
             
             guard var allObjects = snapshot.children.allObjects as? [DataSnapshot] else { return }
             
-            self.lastFetchedPostId = allObjects.removeFirst().key
-
-            if allObjects.count < 3 {
+//            self.lastFetchedPostId = allObjects.removeFirst().key
+            if allObjects.count == 4 {
+                guard let firstPost = allObjects.removeFirst().value as? [String: Any] else { return }
+                guard let creationDate = firstPost["creationDate"] as? TimeInterval else { return }
+                self.lastFetchedPostCreationDate = creationDate
+            }
+            
+            for obj in allObjects {
+                log.warning("posts key", context: obj.key)
+            }
+            
+            if allObjects.count < self.PAGE_ITEMS_COUNT {
                 self.isFinishFetching = true
             }
             
@@ -148,14 +167,16 @@ class UserProfileController: UICollectionViewController, UserProfileViewDelegate
                 postDic["user"] = self.user
                 var post = Post(dictionary: postDic)
                 post.id = postSnapshot.key
-                log.warning("post key", context: post.id)
                 self.posts.append(post)
             })
             
-//            DispatchQueue.main.async {
+            DispatchQueue.main.async {
                 log.warning("reload")
+                self.posts.forEach({ (p) in
+                    log.warning(p.id)
+                })
                 self.collectionView?.reloadData()
-//            }
+            }
         }) { ( error ) in
             log.error("Failed to fetch posts", context: error)
             return
@@ -192,7 +213,6 @@ class UserProfileController: UICollectionViewController, UserProfileViewDelegate
             })
             
             DispatchQueue.main.async {
-                log.warning("reload")
                 self.collectionView?.reloadData()
             }
         }) { ( error ) in

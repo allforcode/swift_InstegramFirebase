@@ -9,13 +9,16 @@
 import UIKit
 
 class CustomImageView: UIImageView {
-    
+
     static let imageCache = NSCache<NSString, UIImage>()
     
+    var lastURLUsedToLoadImage: String?
+
     func loadImage(urlString: String, completion: (() -> Void)? = nil ) {
-        
+        self.lastURLUsedToLoadImage = urlString
+
         self.image = nil
-        
+
         if let imageFromCache = CustomImageView.imageCache.object(forKey: NSString(string: urlString)) {
             DispatchQueue.main.async {
                 self.image = imageFromCache
@@ -28,18 +31,19 @@ class CustomImageView: UIImageView {
                     print("failed to download image", err)
                     return
                 }
-                
-                //to prevent multiple loading, it probably doesn't need in swfit 4
-                if url.absoluteString != urlString {
-                    print("url string not equal in CustomImageView:24")
+
+                if url.absoluteString != self.lastURLUsedToLoadImage {
+                    log.warning("url this time: ", context: url.absoluteString)
+                    log.warning("url of last used:", context: self.lastURLUsedToLoadImage)
+                    log.warning("url string not equal in CustomImageView")
                     return
                 }
-                
+
                 guard let httpResponse = response as? HTTPURLResponse else { return }
-                
+
                 if httpResponse.statusCode == 200 {
                     guard let imageData = data else { return }
-                    
+
                     DispatchQueue.main.async {
                         guard let image = UIImage(data: imageData) else { return }
                         self.image = image
@@ -52,8 +56,9 @@ class CustomImageView: UIImageView {
                     print(httpResponse)
                     return
                 }
-                
+
             }).resume()
         }
     }
 }
+
