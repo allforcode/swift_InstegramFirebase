@@ -172,9 +172,6 @@ class UserProfileController: UICollectionViewController, UserProfileViewDelegate
             
             DispatchQueue.main.async {
                 log.warning("reload")
-                self.posts.forEach({ (p) in
-                    log.warning(p.id)
-                })
                 self.collectionView?.reloadData()
             }
         }) { ( error ) in
