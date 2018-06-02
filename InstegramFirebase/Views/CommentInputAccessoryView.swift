@@ -21,16 +21,18 @@ class CommentInputAccessoryView: UIView {
         return b
     }()
     
-    private let commentTextField: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "Enter Comment..."
-        return tf
+    private let commentTextField: CommentInputTextView = {
+        let cit = CommentInputTextView()
+        cit.isScrollEnabled = false
+        cit.font = UIFont.systemFont(ofSize: 18)
+        return cit
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
         autoresizingMask = .flexibleHeight
+        
         setupViews()
     }
     
@@ -56,12 +58,11 @@ class CommentInputAccessoryView: UIView {
         seperatorLineView.anchor(topAnchor: topAnchor, paddingTop: 0, bottomAnchor: nil, paddingBottom: 0, leftAnchor: leftAnchor, paddingLeft: 0, rightAnchor: rightAnchor, paddingRight: 0, widthConstant: 0, heightConstant: 0.5, centerXAnchor: nil, paddingCenterX: 0, centerYAnchor: nil, paddingCenterY: 0, widthAnchor: nil, widthMultiplier: 0, heightAnchor: nil, heightMultiplier: 0)
     }
     
-//    // this is needed so that the inputAccesoryView is properly sized from the auto layout constraints
-//    // actual value is not important
-//    override var intrinsicContentSize: CGSize {
-//        //        return CGSize.zero
-//        return CGSize(width: 1000, height: 50)
-//    }
+    // this is needed so that the inputAccesoryView is properly sized from the auto layout constraints
+    // actual value is not important
+    override var intrinsicContentSize: CGSize {
+        return .zero
+    }
     
     @objc private func handleSubmit(){
         log.verbose("handle submit")
@@ -70,6 +71,7 @@ class CommentInputAccessoryView: UIView {
     }
     
     func clearCommentText(){
-         self.commentTextField.text = nil
+        self.commentTextField.text = nil
+        self.commentTextField.showPlaceholderLabel(to: true)
     }
 }

@@ -47,6 +47,7 @@
 		DAE6AC5820702AE500142BE5 /* CustomImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE6AC5720702AE500142BE5 /* CustomImageView.swift */; };
 		DAE6AC5B2070394D00142BE5 /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE6AC5A2070394D00142BE5 /* HomeController.swift */; };
 		DAE6AC5D20703BB700142BE5 /* HomePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE6AC5C20703BB700142BE5 /* HomePostCell.swift */; };
+		DAFC53FA20C34C8400028F28 /* CommentInputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFC53F920C34C8400028F28 /* CommentInputTextView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -94,6 +95,7 @@
 		DAE6AC5720702AE500142BE5 /* CustomImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomImageView.swift; sourceTree = "<group>"; };
 		DAE6AC5A2070394D00142BE5 /* HomeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
 		DAE6AC5C20703BB700142BE5 /* HomePostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePostCell.swift; sourceTree = "<group>"; };
+		DAFC53F920C34C8400028F28 /* CommentInputTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputTextView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +139,7 @@
 				DA7F6C40208C0BAC0082DFE9 /* PreviewPhotoContainerView.swift */,
 				DA776AEE20A7AAB80003B5B4 /* CommentInputAccessoryView.swift */,
 				DA776AF020A7AB390003B5B4 /* CommentCell.swift */,
+				DAFC53F920C34C8400028F28 /* CommentInputTextView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -402,6 +405,7 @@
 				DA8303F920267D31001FBFB8 /* Extension.swift in Sources */,
 				DA8303E8202542ED001FBFB8 /* InstegramFirebase.xcdatamodeld in Sources */,
 				DA0B8719202EBBAB0071F193 /* MainTabBarController.swift in Sources */,
+				DAFC53FA20C34C8400028F28 /* CommentInputTextView.swift in Sources */,
 				DAD84A06204B7A97004564E9 /* PhotoHeaderCell.swift in Sources */,
 				DAD84A08204B8DD5004564E9 /* SharePhotoController.swift in Sources */,
 				DA0B871D202F97B60071F193 /* UserProfileController+delegates.swift in Sources */,
