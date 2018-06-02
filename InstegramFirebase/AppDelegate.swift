@@ -11,14 +11,14 @@ import CoreData
 import Firebase
 import Photos
 import SwiftyBeaver
+import UserNotifications
 
 let log = SwiftyBeaver.self
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
 
     var window: UIWindow?
-
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         let logFormat = "$DHH:mm:ss.SSS$d $C$L$c $N.$F:$l - $M, $X"
@@ -43,10 +43,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = MainTabBarController()
         
         PHPhotoLibrary.requestAuthorization { (_) in }
+        
+        attemptRegisterForNotifications(application)
         return true
     }
     
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        log.warning("Registered for notifications", context: deviceToken)
+    }
     
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler(.alert)
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        log.error("Register Remote Notification with error", context: error)
+    }
+    
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+        log.warning("Registered with FCM with token", context: fcmToken)
+    }
+    
+    private func attemptRegisterForNotifications(_ application: UIApplication){
+        log.verbose("Attempting to register APNS...")
+
+        Messaging.messaging().delegate = self
+        UNUserNotificationCenter.current().delegate = self
+        
+        let options: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(options: options) { (granted, error) in
+            if let err = error {
+                log.error("Failed to request auth", context: err)
+            }
+            
+            if granted {
+                log.debug("Auth granted.")
+            }else {
+                log.debug("Auth denied.")
+            }
+        }
+        
+        
+        application.registerForRemoteNotifications()
+    }
 
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

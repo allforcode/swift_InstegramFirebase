@@ -100,14 +100,14 @@ extension SignUpController {
     @objc private func handleSignUp(){
         print("handle Sign Up")
         guard let email = emailTextField.text, email.count > 0, let username = usernameTextField.text, username.count > 0, let password = passwordTextField.text, password.count > 0 else { return }
-        
+
         Auth.auth().createUser(withEmail: email, password: password) { (user, error) in
             if let err = error {
                 print(err)
                 return
             }
             
-            guard let uid = user?.uid else { return }
+            guard let uid = user?.user.uid else { return }
             
             //upload profile image
             guard let image = self.plusPhotoButton.imageView?.image, let imageData = UIImageJPEGRepresentation(image, 1) else { return }

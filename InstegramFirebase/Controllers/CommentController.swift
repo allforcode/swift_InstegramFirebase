@@ -9,62 +9,60 @@
 import UIKit
 import Firebase
 
-class CommentController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+class CommentController: UICollectionViewController, UICollectionViewDelegateFlowLayout, CommentInputAccessoryViewDelegate {
+    
     var post: Post?
     let cellId = "cellId"
     var comments = [Comment]()
-    
-    let commentTextField: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "Enter Comment..."
-        return tf
-    }()
-    
-    lazy var containerView: CustomInputContainerView = {
-        let v = CustomInputContainerView()
-        v.backgroundColor = .white
-        v.autoresizingMask = .flexibleHeight
-        
-        let b = UIButton()
-        
-        b.setTitle("Submit", for: .normal)
-        b.setTitleColor(.black, for: .normal)
-        b.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
-        b.addTarget(self, action: #selector(handleSubmit), for: .touchUpInside)
-        
-        v.addSubview(b)
-        b.anchor(topAnchor: v.safeAreaLayoutGuide.topAnchor, paddingTop: 0, bottomAnchor: v.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0, leftAnchor: nil, paddingLeft: 0, rightAnchor: v.rightAnchor, paddingRight: -12, widthConstant: 50, heightConstant: 0, centerXAnchor: nil, paddingCenterX: 0, centerYAnchor: nil, paddingCenterY: 0, widthAnchor: nil, widthMultiplier: 0, heightAnchor: nil, heightMultiplier: 0)
 
-        v.addSubview(self.commentTextField)
-//        self.commentTextField.adjustsFontSizeToFitWidth = false
-        self.commentTextField.anchor(topAnchor: v.safeAreaLayoutGuide.topAnchor, paddingTop: 0, bottomAnchor: v.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0, leftAnchor: v.leftAnchor, paddingLeft: 12, rightAnchor: b.leftAnchor, paddingRight: -8, widthConstant: 0, heightConstant: 0, centerXAnchor: nil, paddingCenterX: 0, centerYAnchor: nil, paddingCenterY: 0, widthAnchor: nil, widthMultiplier: 0, heightAnchor: nil, heightMultiplier: 0)
-        
-        let seperatorLineView = UIView()
-        seperatorLineView.backgroundColor = UIColor.rgb(red: 230, green: 230, blue: 230)
-        
-        v.addSubview(seperatorLineView)
-        seperatorLineView.anchor(topAnchor: v.topAnchor, paddingTop: 0, bottomAnchor: nil, paddingBottom: 0, leftAnchor: v.leftAnchor, paddingLeft: 0, rightAnchor: v.rightAnchor, paddingRight: 0, widthConstant: 0, heightConstant: 0.5, centerXAnchor: nil, paddingCenterX: 0, centerYAnchor: nil, paddingCenterY: 0, widthAnchor: nil, widthMultiplier: 0, heightAnchor: nil, heightMultiplier: 0)
-        
+    
+    lazy var containerView: CommentInputAccessoryView = {
+        let frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 50)
+        let v = CommentInputAccessoryView(frame: frame)
+        v.delegate = self
         return v
     }()
     
-    @objc private func handleSubmit(){
+//    @objc private func handleSubmit(){
+//        log.verbose("handle submit")
+//        guard let uid = Auth.auth().currentUser?.uid else { return }
+//        guard let postId = self.post?.id else { return }
+//        guard let text = commentTextField.text else { return }
+//
+//        let value = [
+//            "text": text,
+//            "creationDate": Date().timeIntervalSince1970,
+//            "userId": uid
+//        ] as [String: Any]
+//        Database.database().reference().child(DBChild.comments.rawValue).child(postId).childByAutoId().updateChildValues(value) { (error, ref) in
+//
+//            if let err = error {
+//                log.error("Failed to save comment", context: err)
+//            }
+//        }
+//    }
+    
+    func didSubmit(for comment: String) {
         log.verbose("handle submit")
         guard let uid = Auth.auth().currentUser?.uid else { return }
         guard let postId = self.post?.id else { return }
-        guard let text = commentTextField.text else { return }
         
         let value = [
-            "text": text,
+            "text": comment,
             "creationDate": Date().timeIntervalSince1970,
             "userId": uid
-        ] as [String: Any]
-        
+            ] as [String: Any]
         Database.database().reference().child(DBChild.comments.rawValue).child(postId).childByAutoId().updateChildValues(value) { (error, ref) in
             
             if let err = error {
                 log.error("Failed to save comment", context: err)
+                return
             }
+            
+            self.containerView.clearCommentText()
+            let item = self.collectionView(self.collectionView!, numberOfItemsInSection: 0) - 1
+            let lastItemIndex = IndexPath(item: item, section: 0)
+            self.collectionView?.scrollToItem(at: lastItemIndex, at: UICollectionViewScrollPosition.bottom, animated: true)
         }
     }
     

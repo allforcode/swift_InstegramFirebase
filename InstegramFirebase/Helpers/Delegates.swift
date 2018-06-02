@@ -16,3 +16,7 @@ protocol HomePostCellDelegate {
 protocol UserProfileViewDelegate {
     func didChangeView(_ changeTo: Int)
 }
+
+protocol CommentInputAccessoryViewDelegate {
+    func didSubmit(for comment: String)
+}

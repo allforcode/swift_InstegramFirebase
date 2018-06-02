@@ -33,9 +33,9 @@ class CustomImageView: UIImageView {
                 }
 
                 if url.absoluteString != self.lastURLUsedToLoadImage {
-                    log.warning("url this time: ", context: url.absoluteString)
-                    log.warning("url of last used:", context: self.lastURLUsedToLoadImage)
-                    log.warning("url string not equal in CustomImageView")
+//                    log.warning("url this time: ", context: url.absoluteString)
+//                    log.warning("url of last used:", context: self.lastURLUsedToLoadImage)
+//                    log.warning("url string not equal in CustomImageView")
                     return
                 }
 
